@@ -423,23 +423,33 @@ function setMusicUI(playing){
   else        { musicBtn.classList.remove('playing'); musicIcon.textContent = '🔈'; musicLabel.textContent = 'Bật nhạc'; }
 }
 
-// Trình duyệt chặn tự phát khi CHƯA có tương tác, nên mình bật nhạc ngay ở
-// cú chạm/bấm đầu tiên của người dùng (thường là lúc bấm "Tha thứ cho chú").
-function enableMusic(){
-  document.removeEventListener('pointerdown', onFirstGesture);
-  document.removeEventListener('keydown', onFirstGesture);
+// Trình duyệt (nhất là điện thoại) chặn tự phát khi CHƯA có tương tác.
+// Nên mình thử bật nhạc ở MỌI cú chạm/bấm, cho tới khi phát được thì mới ngừng thử.
+let musicUnlocked = false;
+function removeUnlock(){
+  ['pointerdown','touchend','click','keydown'].forEach(ev =>
+    document.removeEventListener(ev, tryUnlock, true));
+}
+function tryUnlock(e){
+  if(musicUnlocked || !CONFIG.nhacNen) return;
+  // để nút nhạc tự xử lý, tránh vừa bật vừa tắt
+  if(e && e.target && e.target.closest && e.target.closest('#music')) return;
+  const p = audio.play();
+  if(p && p.then){
+    p.then(() => { musicUnlocked = true; setMusicUI(true); removeUnlock(); })
+     .catch(() => {}); // chưa được thì để cú chạm sau thử tiếp
+  } else {
+    musicUnlocked = true; setMusicUI(true); removeUnlock();
+  }
+}
+['pointerdown','touchend','click','keydown'].forEach(ev =>
+  document.addEventListener(ev, tryUnlock, true));
+// thử tự phát luôn khi tải xong (máy tính thường cho, điện thoại sẽ đợi cú chạm)
+window.addEventListener('load', () => {
   if(!CONFIG.nhacNen) return;
-  audio.play().then(() => setMusicUI(true)).catch(() => {});
-}
-function onFirstGesture(e){
-  // nếu cú bấm đầu tiên rơi trúng nút nhạc thì để nút tự xử lý, khỏi trùng
-  if(e.target && e.target.closest && e.target.closest('#music')) return;
-  enableMusic();
-}
-document.addEventListener('pointerdown', onFirstGesture);
-document.addEventListener('keydown', onFirstGesture);
-// thử tự phát luôn (một số trình duyệt cho phép nếu đã từng tương tác với trang)
-window.addEventListener('load', () => { if(CONFIG.nhacNen) audio.play().then(() => setMusicUI(true)).catch(() => {}); });
+  const p = audio.play();
+  if(p && p.then) p.then(() => { musicUnlocked = true; setMusicUI(true); removeUnlock(); }).catch(() => {});
+});
 
 // Nút: bấm để TẮT nhạc (và có thể bật lại)
 musicBtn.addEventListener('click', () => {
