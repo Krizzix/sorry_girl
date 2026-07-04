@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chồn vàng dễ thương của người ta</title>
+<title>Cho anh xin lỗi nhé?</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:ital,wght@0,400;0,600;0,700;1,600&display=swap" rel="stylesheet">
@@ -186,8 +186,8 @@
 
   <!-- MÀN CUỐI: ong bay tới ruồi -->
   <section id="reunion">
-    <h2 class="reunion-title" id="reunionTitle">Dù mình đang cách xa nhau...</h2>
-    <p class="reunion-msg" id="reunionMsg">...con ong vẫn luôn hướng về con ruồi của nó mỗi ngày 🐝</p>
+    <h2 class="reunion-title" id="reunionTitle">Dù thế nào đi chăng nữa...</h2>
+    <p class="reunion-msg" id="reunionMsg">... 🐝vẫn luôn cưng 🪰 rất là nhiều</p>
     <div class="scene" id="scene">
       <span class="track"></span>
       <span class="bee" id="bee">🐝</span>
@@ -212,7 +212,7 @@ const CONFIG = {
   kyTen: "— Chú Tuna",      // chữ ký cuối thư
 
   // Link nhạc: dán link Google Drive / Dropbox / GitHub / hoặc .mp3 trực tiếp. Để trống "" nếu chưa có.
-  nhacNen: "https://www.dropbox.com/scl/fi/yuegtyivh5yz6824z5ga3/Long-Cao-NH-NG-B-C-TRANH-M-U-Audio.mp3?rlkey=zrxn2kynzelrsv0y2uadplub7&st=caxshk5j&dl=0",
+  nhacNen: "ttps://www.dropbox.com/scl/fi/yuegtyivh5yz6824z5ga3/Long-Cao-NH-NG-B-C-TRANH-M-U-Audio.mp3?rlkey=zrxn2kynzelrsv0y2uadplub7&st=caxshk5j&dl=0",
 
   // Lời thư — mỗi dấu \n là xuống dòng. Cứ viết lại theo ý mình.
   laThu:
@@ -358,15 +358,12 @@ function finishLetter(){
   function sendHug(){
     const r = lady.getBoundingClientRect();
     popAt(r.left + r.width/2, r.top + r.height/2);
+    $('#reunionTitle').textContent = CONFIG.reunionTieuDe2;   // đổi tiêu đề ngay khi ong bay tới ruồi xong
     $('#reunionMsg').textContent = CONFIG.reunionOm;
     hugBtn.textContent = "Nhấn thêm cái nữa đi Môn Tuyền 😖";
   }
   hugBtn.addEventListener('click', () => {
-    if(scene.classList.contains('hug')){
-      $('#reunionTitle').textContent = CONFIG.reunionTieuDe2;
-      sendHug();
-      return;
-    }
+    if(scene.classList.contains('hug')){ sendHug(); return; }
     scene.classList.add('hug');
     bee.classList.add('buzz');
     const wait = reduce ? 0 : 1300;
