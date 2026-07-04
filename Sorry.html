@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cho anh xin lỗi nhé?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:ital,wght@0,400;0,600;0,700;1,600&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     PHẦN DỄ SỬA: đổi tên, biệt danh, ảnh, nhạc ở khối CONFIG
+     nằm trong thẻ <script> gần cuối file (tìm chữ "CONFIG").
+     ============================================================ */
+
+  :root{
+    --paper:#FFF6EE;
+    --rose1:#FFD9E0;
+    --rose2:#FFE9D6;
+    --coral:#FF7A8A;
+    --coral-dark:#F0576B;
+    --berry:#7A2E48;
+    --berry-soft:#A5566F;
+    --gold:#F2B441;
+    --mint:#7CD6B4;
+    --shadow:rgba(122,46,72,.18);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Nunito',sans-serif;
+    color:var(--berry);
+    background:linear-gradient(160deg,var(--rose1) 0%,var(--rose2) 55%,#FFF3E4 100%);
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+
+  /* nền tim mờ trang trí */
+  .bg-hearts{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.35;}
+
+  canvas#fx{position:fixed;inset:0;z-index:40;pointer-events:none;}
+
+  .wrap{position:relative;z-index:2;max-width:640px;margin:0 auto;padding:28px 20px 80px;}
+
+  /* thẻ dạng sticker hơi nghiêng */
+  .card{
+    background:var(--paper);
+    border-radius:26px;
+    box-shadow:0 18px 40px -12px var(--shadow),0 0 0 6px rgba(255,255,255,.6);
+    padding:34px 26px;
+  }
+
+  /* ---------- MÀN 1: câu hỏi ---------- */
+  #ask{
+    text-align:center;
+    min-height:78vh;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:14px;
+  }
+  .peek{font-size:clamp(64px,18vw,120px);line-height:1;filter:drop-shadow(0 8px 10px var(--shadow));animation:bob 2.4s ease-in-out infinite;}
+  @keyframes bob{0%,100%{transform:translateY(0) rotate(-3deg);}50%{transform:translateY(-12px) rotate(3deg);}}
+
+  .eyebrow{font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:13px;color:var(--coral-dark);}
+  h1{
+    font-family:'Baloo 2',cursive;font-weight:800;
+    font-size:clamp(30px,7vw,46px);line-height:1.12;margin:6px 0 2px;color:var(--berry);
+  }
+  .sub{font-size:clamp(15px,4vw,18px);color:var(--berry-soft);max-width:24ch;margin:0 auto;font-weight:600;}
+
+  .btns{position:relative;display:flex;gap:16px;justify-content:center;align-items:center;margin-top:24px;width:100%;flex-wrap:wrap;min-height:70px;}
+  button{font-family:'Baloo 2',cursive;cursor:pointer;border:none;font-weight:700;}
+  .btn-yes{
+    background:var(--coral);color:#fff;font-size:clamp(18px,5vw,22px);
+    padding:16px 30px;border-radius:999px;box-shadow:0 10px 22px -6px var(--coral-dark);
+    transition:transform .18s ease, box-shadow .18s ease;transform-origin:center;
+  }
+  .btn-yes:hover{transform:scale(1.06) rotate(-1deg);}
+  .btn-no{
+    background:#fff;color:var(--berry-soft);font-size:clamp(15px,4vw,18px);
+    padding:14px 24px;border-radius:999px;box-shadow:0 6px 14px -6px var(--shadow);
+    transition:transform .12s ease;will-change:transform;
+  }
+
+  /* ---------- MÀN 2: thư ---------- */
+  #letter{display:none;margin-top:8px;transform:rotate(-1.2deg);position:relative;}
+  #letter.show{display:block;animation:pop .5s cubic-bezier(.2,1.2,.3,1) both;}
+  @keyframes pop{0%{opacity:0;transform:rotate(-1.2deg) scale(.85);}100%{opacity:1;transform:rotate(-1.2deg) scale(1);}}
+
+  .stamp{display:inline-block;background:var(--mint);color:#0f5c44;font-family:'Baloo 2',cursive;font-weight:800;
+    padding:6px 14px;border-radius:10px;transform:rotate(3deg);font-size:14px;box-shadow:0 4px 0 rgba(15,92,68,.25);}
+  .to{font-family:'Baloo 2',cursive;font-weight:700;font-size:clamp(20px,5.5vw,26px);margin:14px 0 4px;}
+  .to em{color:var(--coral-dark);font-style:normal;}
+  .letter-body{font-size:clamp(16px,4.3vw,18px);line-height:1.85;white-space:pre-wrap;min-height:5.5em;font-weight:600;}
+  .caret{display:inline-block;width:2px;height:1.1em;background:var(--coral);vertical-align:-2px;animation:blink .8s steps(1) infinite;}
+  @keyframes blink{50%{opacity:0;}}
+  .sign{margin-top:18px;font-family:'Baloo 2',cursive;font-weight:700;text-align:right;color:var(--berry-soft);}
+  .sign small{display:block;font-family:'Nunito';font-weight:600;color:var(--coral-dark);}
+
+  /* ---------- con ong 🐝 đậu sẵn ở góc trái dưới lá thư ---------- */
+  .letter-bee{
+    position:absolute;left:6%;top:86%;font-size:24px;z-index:5;
+    pointer-events:none;filter:drop-shadow(0 3px 3px var(--shadow));
+    transform:scaleX(-1); /* lật ngang để đầu ong hướng về phía con ruồi */
+  }
+  /* ---------- con ruồi 🪰 lướt theo con chữ như đang đọc (JS điều khiển vị trí) ---------- */
+  .fly{
+    position:absolute;left:14%;top:30%;font-size:24px;z-index:6;
+    pointer-events:none;will-change:left,top,transform;
+    transition:left .26s ease-out, top .26s ease-out;
+    animation:flyHover .55s ease-in-out infinite;
+  }
+  @keyframes flyHover{0%,100%{margin-top:0;}50%{margin-top:-3px;}}
+
+  /* ---------- MÀN CUỐI: ong bay tới ruồi ---------- */
+  #reunion{display:none;margin-top:26px;text-align:center;}
+  #reunion.show{display:block;animation:pop .5s ease both;}
+  .reunion-title{font-family:'Baloo 2',cursive;font-weight:800;font-size:clamp(20px,5.5vw,26px);margin:2px 0 4px;color:var(--berry);}
+  .reunion-msg{color:var(--berry-soft);font-weight:600;font-size:clamp(15px,4vw,17px);max-width:32ch;margin:0 auto 8px;min-height:2.7em;line-height:1.5;}
+  .scene{position:relative;height:96px;max-width:430px;margin:16px auto 4px;}
+  .scene .track{position:absolute;left:12%;right:12%;top:50%;border-top:2px dashed var(--coral);opacity:.4;}
+  .scene .bee,.scene .lady{position:absolute;top:50%;font-size:34px;filter:drop-shadow(0 4px 5px var(--shadow));}
+  .scene .bee{left:8%;transform:translate(-50%,-50%) scaleX(-1);transition:left 1.3s cubic-bezier(.4,.1,.3,1);}
+  .scene .lady{left:88%;transform:translate(-50%,-50%);}
+  .scene.hug .bee{left:76%;}
+  .scene .bee.buzz{animation:beeWiggle .28s ease-in-out infinite;}
+  @keyframes beeWiggle{0%,100%{margin-top:0;}50%{margin-top:-7px;}}
+  .hug-btn{
+    background:var(--coral);color:#fff;font-family:'Baloo 2',cursive;font-weight:700;cursor:pointer;
+    font-size:clamp(16px,4.5vw,19px);padding:14px 26px;border-radius:999px;border:none;
+    box-shadow:0 10px 22px -6px var(--coral-dark);transition:transform .16s ease;margin-top:8px;
+  }
+  .hug-btn:hover{transform:scale(1.05) rotate(-1deg);}
+
+  .again{display:block;margin:34px auto 0;background:none;color:var(--berry-soft);
+    text-decoration:underline;font-weight:700;font-size:14px;border:none;font-family:'Nunito';}
+
+  /* ---------- nút nhạc ---------- */
+  #music{position:fixed;right:16px;bottom:16px;z-index:50;background:#fff;color:var(--coral-dark);
+    border-radius:999px;padding:11px 16px;font-size:14px;font-weight:700;font-family:'Baloo 2',cursive;
+    box-shadow:0 8px 20px -6px var(--shadow);display:inline-flex;align-items:center;gap:8px;}
+  #music .disc{display:inline-block;}
+  #music.playing .disc{animation:spin 2.6s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none!important;}
+  }
+</style>
+</head>
+<body>
+<svg class="bg-hearts" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+  <g fill="var(--coral)" opacity="0.5">
+    <path d="M10 14c-1.6-2.6-6-1.8-6 1.4 0 2.4 3.4 4.6 6 6.6 2.6-2 6-4.2 6-6.6 0-3.2-4.4-4-6-1.4z"/>
+    <path d="M84 8c-1.2-2-4.5-1.3-4.5 1 0 1.8 2.5 3.4 4.5 5 2-1.6 4.5-3.2 4.5-5 0-2.3-3.3-3-4.5-1z"/>
+    <path d="M70 78c-2-3.2-7.5-2.2-7.5 1.8 0 3 4.3 5.7 7.5 8.2 3.2-2.5 7.5-5.2 7.5-8.2 0-4-5.5-5-7.5-1.8z"/>
+    <path d="M22 62c-1.4-2.2-5-1.5-5 1.1 0 2 2.8 3.8 5 5.5 2.2-1.7 5-3.5 5-5.5 0-2.6-3.6-3.3-5-1.1z"/>
+  </g>
+</svg>
+
+<canvas id="fx" aria-hidden="true"></canvas>
+
+<main class="wrap">
+
+  <!-- MÀN 1 -->
+  <section id="ask" class="card" aria-live="polite">
+    <div class="peek">🐝</div>
+    <div class="eyebrow">Một lời thú tội nhỏ</div>
+    <h1 id="askTitle">Cho chú xin lỗi được không?</h1>
+    <p class="sub">Chú biết chú sai rồi... nhấn nút giúp chú nha? 🥺</p>
+    <div class="btns">
+      <button class="btn-yes" id="yesBtn">Tha thứ cho chú 🐝</button>
+      <button class="btn-no" id="noBtn">Không 😤</button>
+    </div>
+  </section>
+
+  <!-- MÀN 2 -->
+  <section id="letter" class="card">
+    <span class="stamp">VÀI DÒNG NHẮN GỬI ♡</span>
+    <p class="to">Gửi <em id="toName">em yêu</em>,</p>
+    <div class="letter-body"><span id="typed"></span><span class="caret" id="caret"></span></div>
+    <div class="sign" id="signBlock" style="opacity:0">Ký tên 🐝,<small id="signName">— Anh</small></div>
+    <div class="letter-bee" aria-hidden="true">🐝</div>
+    <div class="fly" id="fly" aria-hidden="true">🪰</div>
+  </section>
+
+  <!-- MÀN CUỐI: ong bay tới ruồi -->
+  <section id="reunion">
+    <h2 class="reunion-title" id="reunionTitle">Dù mình đang cách xa nhau...</h2>
+    <p class="reunion-msg" id="reunionMsg">...con ong vẫn luôn hướng về con ruồi của nó mỗi ngày 🐝</p>
+    <div class="scene" id="scene">
+      <span class="track"></span>
+      <span class="bee" id="bee">🐝</span>
+      <span class="lady" id="lady">🪰</span>
+    </div>
+    <button class="hug-btn" id="hugBtn">Chưa hết đâu, em bấm nút này nữa nha Môn Tuyền</button>
+    <button class="again" id="againBtn">↺ Xem lại từ đầu</button>
+  </section>
+
+</main>
+
+<button id="music" aria-label="Bật hoặc tắt nhạc nền"><span id="musicIcon">🔈</span><span id="musicLabel">Bật nhạc</span></button>
+<audio id="audio" loop></audio>
+
+<script>
+/* ============================================================
+   CONFIG — chỉ cần sửa ở đây
+   ============================================================ */
+const CONFIG = {
+  tenNang: "Ttuyen",          // tên thật của nàng
+  bietDanh: "Người em bé",       // biệt danh gọi thân mật
+  kyTen: "— Chú Tuna",      // chữ ký cuối thư
+
+  // Link nhạc: dán link Google Drive / Dropbox / GitHub / hoặc .mp3 trực tiếp. Để trống "" nếu chưa có.
+  nhacNen: "https://www.dropbox.com/scl/fi/yuegtyivh5yz6824z5ga3/Long-Cao-NH-NG-B-C-TRANH-M-U-Audio.mp3?rlkey=zrxn2kynzelrsv0y2uadplub7&st=caxshk5j&dl=0",
+
+  // Lời thư — mỗi dấu \n là xuống dòng. Cứ viết lại theo ý mình.
+  laThu:
+`Chú xin lỗi vì đã làm ${'{ten}'} buồn.
+Chú biết mình đã sai, và chú thật lòng thấy có lỗi.
+
+Chú không giỏi nói lời ngọt ngào,
+nên chú ngồi gõ cả trang web này để nói rằng:
+chú rất trân trọng ${'{bietdanh}'}.
+
+Cho chú một cơ hội để bù đắp nha? 🥹`,
+
+  reunionTruoc: "Dù đang cách xa nhau...",
+  reunionSau:   "...🐝 vẫn luôn hướng về 🪰mỗi ngày",
+  reunionOm:    "Chú tới gòi, em đừng nhả nước miếng nha 😏",
+  reunionTieuDe2: "Người em bé",
+};
+
+/* ---- các câu nhây cho nút "Không" ---- */
+const NO_LINES = ["Không 😤","Chắc không?","Suy nghĩ lại đi 🥺","Đừng mà...","Bắt được là thua đó!","Hong cho bấm đâu 😝","Thôi bấm Tha đi 🥹","Trốn tiếp nè~","Kiên trì ghê ta 😅"];
+
+const $ = s => document.querySelector(s);
+const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ================= NÚT "KHÔNG" CHẠY TRỐN ================= */
+const noBtn = $('#noBtn');
+const yesBtn = $('#yesBtn');
+let dodges = 0;
+function dodge(){
+  dodges++;
+  noBtn.textContent = NO_LINES[Math.min(dodges, NO_LINES.length-1)];
+  const pad = 20;
+  const maxX = window.innerWidth - noBtn.offsetWidth - pad;
+  const maxY = window.innerHeight - noBtn.offsetHeight - pad;
+  const x = Math.max(pad, Math.random()*maxX);
+  const y = Math.max(pad, Math.random()*maxY);
+  noBtn.style.position = 'fixed';
+  noBtn.style.left = x + 'px';
+  noBtn.style.top = y + 'px';
+  // nút Tha to dần cho dễ bấm
+  const grow = Math.min(1 + dodges*0.06, 1.5);
+  yesBtn.style.transform = `scale(${grow})`;
+  if(dodges > 5) noBtn.style.opacity = Math.max(0.4, 1 - (dodges-5)*0.15);
+}
+noBtn.addEventListener('mouseenter', dodge);
+noBtn.addEventListener('touchstart', e => { e.preventDefault(); dodge(); }, {passive:false});
+noBtn.addEventListener('click', e => { e.preventDefault(); dodge(); });
+
+/* ================= BẤM "THA" ================= */
+yesBtn.addEventListener('click', () => {
+  burst();
+  startHeartRain();
+  $('#ask').style.display = 'none';
+  showLetter();
+});
+
+/* ================= LÁ THƯ GÕ TỪNG CHỮ ================= */
+function buildLetter(){
+  return CONFIG.laThu
+    .replaceAll('{ten}', CONFIG.tenNang)
+    .replaceAll('{bietdanh}', CONFIG.bietDanh);
+}
+function showLetter(){
+  $('#toName').textContent = CONFIG.tenNang;
+  $('#signName').textContent = CONFIG.kyTen;
+  const letterEl = $('#letter');
+  letterEl.classList.add('show');
+  const text = buildLetter();
+  const target = $('#typed');
+  const caret = $('#caret');
+
+  if(reduce){
+    target.textContent = text;
+    caret.style.display = 'none';
+    finishLetter();
+    return;
+  }
+  let i = 0;
+  (function type(){
+    if(i <= text.length){
+      target.textContent = text.slice(0, i);
+      followFly();
+      i++;
+      const ch = text[i-2] || '';
+      const delay = ch === '\n' ? 220 : (/[.!?]/.test(ch) ? 160 : 34);
+      setTimeout(type, delay);
+    } else {
+      caret.style.display = 'none';
+      finishLetter();
+    }
+  })();
+}
+
+/* con ruồi bám sát con trỏ gõ chữ — hiệu ứng "đang đọc" từng dòng */
+function followFly(){
+  if(reduce) return;
+  const fly = $('#fly'), caret = $('#caret'), letter = $('#letter');
+  if(!fly || !caret || caret.style.display === 'none') return;
+  const lr = letter.getBoundingClientRect();
+  const cr = caret.getBoundingClientRect();
+  const x = Math.min(Math.max(cr.left - lr.left + 8, 4), lr.width - 30);
+  const y = Math.max(cr.top - lr.top - 20, 6);
+  fly.style.left = x + 'px';
+  fly.style.top = y + 'px';
+}
+
+/* con ruồi dừng bay vòng và bay tới đậu cạnh con ong (góc trái dưới) */
+function landFly(){
+  const fly = $('#fly');
+  if(!fly) return;
+  if(reduce){ fly.style.animation='none'; fly.style.left='16%'; fly.style.top='86%'; fly.style.transform='rotate(0deg)'; return; }
+  const cs = getComputedStyle(fly);
+  const curLeft = cs.left, curTop = cs.top, curTransform = cs.transform;
+  // đóng băng con ruồi ngay tại vị trí đang bay
+  fly.style.animation = 'none';
+  fly.style.left = curLeft;
+  fly.style.top = curTop;
+  fly.style.transform = (curTransform && curTransform !== 'none') ? curTransform : 'rotate(0deg)';
+  void fly.offsetWidth; // ép trình duyệt vẽ lại
+  // rồi bay mượt tới cạnh con ong
+  fly.style.transition = 'left 1.15s ease-in, top 1.15s ease-in, transform 1.15s ease-in';
+  fly.style.left = '16%';
+  fly.style.top = '86%';
+  fly.style.transform = 'rotate(0deg)';
+}
+
+function finishLetter(){
+  landFly();
+  const sign = $('#signBlock');
+  sign.style.transition = 'opacity .6s ease';
+  sign.style.opacity = 1;
+  // đặt lời nhắn màn cuối theo config
+  $('#reunionTitle').textContent = CONFIG.reunionTruoc;
+  $('#reunionMsg').textContent = CONFIG.reunionSau;
+  const g = $('#reunion');
+  g.classList.add('show');
+  setTimeout(() => g.scrollIntoView({behavior: reduce ? 'auto' : 'smooth'}), 400);
+}
+
+/* ================= MÀN ONG BAY TỚI RUỒI ================= */
+(function setupReunion(){
+  const scene = $('#scene'), bee = $('#bee'), lady = $('#lady'), hugBtn = $('#hugBtn');
+  function sendHug(){
+    const r = lady.getBoundingClientRect();
+    popAt(r.left + r.width/2, r.top + r.height/2);
+    $('#reunionMsg').textContent = CONFIG.reunionOm;
+    hugBtn.textContent = "Nhấn thêm cái nữa đi Môn Tuyền 😖";
+  }
+  hugBtn.addEventListener('click', () => {
+    if(scene.classList.contains('hug')){
+      $('#reunionTitle').textContent = CONFIG.reunionTieuDe2;
+      sendHug();
+      return;
+    }
+    scene.classList.add('hug');
+    bee.classList.add('buzz');
+    const wait = reduce ? 0 : 1300;
+    setTimeout(() => { bee.classList.remove('buzz'); sendHug(); }, wait);
+  });
+})();
+
+/* ================= XEM LẠI ================= */
+$('#againBtn').addEventListener('click', () => location.reload());
+
+/* ================= NHẠC NỀN (tự bật, nút để tắt/bật lại) ================= */
+const audio = $('#audio');
+const musicBtn = $('#music');
+const musicLabel = $('#musicLabel');
+const musicIcon = $('#musicIcon');
+
+// Chuyển link chia sẻ (Google Drive / Dropbox / GitHub) -> link phát trực tiếp
+function toDirectAudio(url){
+  if(!url) return url;
+  url = url.trim();
+  // Google Drive
+  if(url.includes('drive.google.com')){
+    const m = url.match(/\/file\/d\/([^/]+)/) || url.match(/[?&]id=([^&]+)/) || url.match(/\/d\/([^/]+)/);
+    if(m) return 'https://drive.google.com/uc?export=download&id=' + m[1] + '&confirm=t';
+  }
+  // Dropbox -> dạng phát trực tiếp
+  if(url.includes('dropbox.com')){
+    let u = url.replace('www.dropbox.com','dl.dropboxusercontent.com');
+    if(u.includes('dl=0')) u = u.replace('dl=0','dl=1');
+    else if(!/[?&]dl=1/.test(u)) u += (u.includes('?') ? '&' : '?') + 'dl=1';
+    return u;
+  }
+  // GitHub (link blob -> raw)
+  if(url.includes('github.com') && url.includes('/blob/')){
+    return url.replace('github.com','raw.githubusercontent.com').replace('/blob/','/');
+  }
+  return url;
+}
+if(CONFIG.nhacNen){
+  audio.preload = 'auto';
+  audio.src = toDirectAudio(CONFIG.nhacNen);
+  audio.volume = 0.6;
+  // nếu link không tải được (Drive hay chặn), báo cho biết thay vì im lặng
+  audio.addEventListener('error', () => {
+    musicIcon.textContent = '⚠️';
+    musicLabel.textContent = 'Nhạc lỗi link';
+    console.warn('[Nhạc] Không tải được từ:', audio.currentSrc || audio.src,
+      '\nGoogle Drive thường chặn phát trực tiếp. Hãy thử host khác (Dropbox/GitHub) hoặc đặt quyền chia sẻ "Anyone with the link".');
+  });
+}
+
+function setMusicUI(playing){
+  if(playing){ musicBtn.classList.add('playing'); musicIcon.textContent = '🔊'; musicLabel.textContent = 'Tắt nhạc'; }
+  else        { musicBtn.classList.remove('playing'); musicIcon.textContent = '🔈'; musicLabel.textContent = 'Bật nhạc'; }
+}
+
+// Trình duyệt chặn tự phát khi CHƯA có tương tác, nên mình bật nhạc ngay ở
+// cú chạm/bấm đầu tiên của người dùng (thường là lúc bấm "Tha thứ cho chú").
+function enableMusic(){
+  document.removeEventListener('pointerdown', onFirstGesture);
+  document.removeEventListener('keydown', onFirstGesture);
+  if(!CONFIG.nhacNen) return;
+  audio.play().then(() => setMusicUI(true)).catch(() => {});
+}
+function onFirstGesture(e){
+  // nếu cú bấm đầu tiên rơi trúng nút nhạc thì để nút tự xử lý, khỏi trùng
+  if(e.target && e.target.closest && e.target.closest('#music')) return;
+  enableMusic();
+}
+document.addEventListener('pointerdown', onFirstGesture);
+document.addEventListener('keydown', onFirstGesture);
+// thử tự phát luôn (một số trình duyệt cho phép nếu đã từng tương tác với trang)
+window.addEventListener('load', () => { if(CONFIG.nhacNen) audio.play().then(() => setMusicUI(true)).catch(() => {}); });
+
+// Nút: bấm để TẮT nhạc (và có thể bật lại)
+musicBtn.addEventListener('click', () => {
+  if(!CONFIG.nhacNen){ musicLabel.textContent = 'Chưa gắn nhạc'; return; }
+  if(audio.paused){ audio.play().then(() => setMusicUI(true)).catch(() => {}); }
+  else { audio.pause(); setMusicUI(false); }
+});
+
+/* ================= HIỆU ỨNG TIM / PHÁO GIẤY ================= */
+const canvas = $('#fx');
+const ctx = canvas.getContext('2d');
+let W, H, parts = [], raining = false;
+function resize(){ W = canvas.width = innerWidth; H = canvas.height = innerHeight; }
+resize(); addEventListener('resize', resize);
+
+function heart(x,y,c,s,vx,vy){ return {x,y,c,s,vx,vy,rot:Math.random()*6,vr:(Math.random()-.5)*.2,life:1}; }
+const COLORS = ['#FF7A8A','#F0576B','#F2B441','#7CD6B4','#FF9BB0','#ffffff'];
+
+function drawHeart(p){
+  ctx.save();
+  ctx.translate(p.x,p.y); ctx.rotate(p.rot); ctx.scale(p.s,p.s);
+  ctx.globalAlpha = Math.max(0,p.life);
+  ctx.fillStyle = p.c;
+  ctx.beginPath();
+  ctx.moveTo(0,3);
+  ctx.bezierCurveTo(-5,-3,-10,2,0,9);
+  ctx.bezierCurveTo(10,2,5,-3,0,3);
+  ctx.fill();
+  ctx.restore();
+}
+function burst(){
+  if(reduce) return;
+  const cx = W/2, cy = H*0.42;
+  for(let i=0;i<90;i++){
+    const a = Math.random()*Math.PI*2, sp = 3+Math.random()*7;
+    parts.push(heart(cx,cy,COLORS[i%COLORS.length],.8+Math.random()*1.4,Math.cos(a)*sp,Math.sin(a)*sp-3));
+  }
+  loop();
+}
+function popAt(x,y){
+  if(reduce) return;
+  for(let i=0;i<18;i++){
+    const a = Math.random()*Math.PI*2, sp = 2+Math.random()*5;
+    parts.push(heart(x,y,COLORS[i%COLORS.length],.7+Math.random()*.9,Math.cos(a)*sp,Math.sin(a)*sp-2));
+  }
+  loop();
+}
+function startHeartRain(){
+  if(reduce) return;
+  raining = true;
+  loop();
+}
+let running = false;
+function loop(){
+  if(running) return; running = true;
+  (function frame(){
+    ctx.clearRect(0,0,W,H);
+    if(raining && Math.random()<0.4){
+      parts.push(heart(Math.random()*W,-20,COLORS[Math.floor(Math.random()*COLORS.length)],.6+Math.random()*.9,(Math.random()-.5)*1,1.5+Math.random()*2));
+    }
+    parts.forEach(p=>{
+      p.vy += 0.12; p.x += p.vx; p.y += p.vy; p.rot += p.vr;
+      if(p.y > H*0.5 && !raining) p.life -= 0.012;
+    });
+    parts = parts.filter(p => p.life>0 && p.y < H+30);
+    parts.forEach(drawHeart);
+    if(parts.length || raining){ requestAnimationFrame(frame); }
+    else { running = false; ctx.clearRect(0,0,W,H); }
+  })();
+}
+</script>
+</body>
+</html>
